@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, Trash2, Calendar, FileText, Pill } from "lucide-react";
+import { ArrowLeft, Eye, Trash2, Calendar, FileText, Pill, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -189,6 +189,21 @@ const MyPrescriptions = () => {
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => navigate("/set-intake", {
+                          state: {
+                            prescriptionId: prescription.id,
+                            prescriptionName: prescription.prescription_name || "Untitled Prescription",
+                            medicines: Array.isArray(prescription.medicines) ? prescription.medicines : []
+                          }
+                        })}
+                      >
+                        <Clock className="w-4 h-4 mr-2" />
+                        Set Intake
                       </Button>
                       <Button
                         variant="ghost"

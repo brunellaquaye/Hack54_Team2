@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import QuickActionCard from "@/components/QuickActionCard";
 import MedicationCard from "@/components/MedicationCard";
 import ReminderCard from "@/components/ReminderCard";
+import MedicationReminder from "@/components/MedicationReminder";
+import { useMedicationReminders } from "@/hooks/useMedicationReminders";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
@@ -34,6 +36,9 @@ const Index = () => {
   const [isLoadingDrugInfo, setIsLoadingDrugInfo] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Medication reminders
+  const { reminders, loading: remindersLoading, refetch: refetchReminders, generateNextReminder } = useMedicationReminders();
 
   useEffect(() => {
     // Set up auth state listener
@@ -236,8 +241,8 @@ const Index = () => {
       <header className="bg-[image:var(--gradient-header)] text-white px-6 pt-8 pb-8 rounded-b-[2rem]">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <p className="text-sm opacity-90 mb-1">Good morning</p>
-            <h1 className="text-2xl font-bold">Hi, {getUserDisplayName()}</h1>
+            <p className="text-sm opacity-90 mb-1">WELCOME</p>
+            <h1 className="text-2xl font-bold">{getUserDisplayName()}</h1>
           </div>
           <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
             <Bell className="w-6 h-6" />
@@ -334,42 +339,25 @@ const Index = () => {
 
         {/* Medication Reminders */}
         <section>
-          <h2 className="text-lg font-bold mb-4">Medication Reminders</h2>
-          {loading ? (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Today's Medication Reminders</h2>
+            <button 
+              onClick={() => navigate("/my-prescriptions")}
+              className="text-primary text-sm font-medium"
+            >
+              Manage Schedules
+            </button>
+          </div>
+          {remindersLoading ? (
             <div className="bg-card rounded-2xl p-6 text-center text-muted-foreground">
               Loading reminders...
             </div>
-          ) : getAllMedicines().length > 0 ? (
-            <div className="space-y-3">
-              {getAllMedicines().slice(0, 3).map((med, index) => {
-                const currentHour = new Date().getHours();
-                const morningTime = "8:00 AM";
-                const afternoonTime = "2:00 PM";
-                const eveningTime = "8:00 PM";
-                
-                // Determine time based on frequency
-                let time = morningTime;
-                if (index % 3 === 1) time = afternoonTime;
-                if (index % 3 === 2) time = eveningTime;
-                
-                // Mark morning reminders as taken if it's past 10 AM
-                const actionType = (time === morningTime && currentHour > 10) ? "taken" : "log";
-                
-                return (
-                  <ReminderCard
-                    key={index}
-                    name={`${med.name} ${med.dosage}`}
-                    amount={med.amount}
-                    time={time}
-                    actionType={actionType}
-                  />
-                );
-              })}
-            </div>
           ) : (
-            <div className="bg-card rounded-2xl p-6 text-center">
-              <p className="text-muted-foreground">No reminders set</p>
-            </div>
+            <MedicationReminder 
+              reminders={reminders} 
+              onReminderUpdate={refetchReminders}
+              onGenerateNextReminder={generateNextReminder}
+            />
           )}
         </section>
       </main>

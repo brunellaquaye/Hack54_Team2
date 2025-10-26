@@ -6,15 +6,15 @@ import { ChevronRight } from "lucide-react";
 const onboardingSteps = [
   {
     title: "Access verified medicines anywhere in Ghana.",
-    image: "🏥"
+    image: "/onb1.jpg"
   },
   {
     title: "Personalized recommendations from your health data.",
-    image: "💊"
+    image: "/onb2.jpg"
   },
   {
     title: "Connect directly with licensed pharmacies.",
-    image: "🤝"
+    image: "/onb3.jpg"
   }
 ];
 
@@ -37,9 +37,13 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-between p-6">
       <div className="flex-1 flex flex-col items-center justify-center max-w-md w-full">
-        {/* Image placeholder */}
-        <div className="w-full aspect-square bg-card rounded-3xl mb-8 flex items-center justify-center text-8xl shadow-lg">
-          {onboardingSteps[currentStep].image}
+        {/* Image */}
+        <div className="w-full aspect-square rounded-3xl mb-8 overflow-hidden shadow-lg">
+          <img 
+            src={onboardingSteps[currentStep].image} 
+            alt={`Onboarding step ${currentStep + 1}`}
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Title */}

@@ -61,7 +61,7 @@ const Signup = () => {
             Create your account
           </h1>
           <p className="text-muted-foreground">
-            Join MedFi to access healthcare services
+            Join Medi-Fi to access healthcare services
           </p>
         </div>
 

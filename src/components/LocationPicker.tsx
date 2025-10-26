@@ -6,8 +6,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "@/components/ui/button";
 import { Navigation, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import MapboxTokenDialog from "./MapboxTokenDialog";
 
 interface LocationPickerProps {
   onLocationSelect: (address: string, coordinates: [number, number]) => void;
@@ -21,7 +19,6 @@ const LocationPicker = ({ onLocationSelect, initialAddress }: LocationPickerProp
   const geocoder = useRef<MapboxGeocoder | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [mapboxToken, setMapboxToken] = useState("");
-  const [showTokenDialog, setShowTokenDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,38 +26,12 @@ const LocationPicker = ({ onLocationSelect, initialAddress }: LocationPickerProp
   }, []);
 
   const loadMapboxToken = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setShowTokenDialog(true);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('mapbox_token')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data?.mapbox_token) {
-        setMapboxToken(data.mapbox_token);
-        mapboxgl.accessToken = data.mapbox_token;
-      } else {
-        setShowTokenDialog(true);
-      }
-    } catch (error) {
-      console.error("Error loading token:", error);
-      setShowTokenDialog(true);
-    }
-  };
-
-  const handleTokenSaved = (token: string) => {
+    // Use the hardcoded Mapbox token
+    const token = "pk.eyJ1IjoibW90aW9ubWFuamV2aW4iLCJhIjoiY21oNzlvcmJ3MDR4YzJvcXN3ZzBzbWc0cyJ9.Cac2J9T7vjl3nEPt9-2o_Q";
     setMapboxToken(token);
     mapboxgl.accessToken = token;
-    setShowTokenDialog(false);
   };
+
 
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
@@ -197,17 +168,7 @@ const LocationPicker = ({ onLocationSelect, initialAddress }: LocationPickerProp
   };
 
   return (
-    <>
-      <MapboxTokenDialog
-        open={showTokenDialog}
-        onTokenSaved={handleTokenSaved}
-      />
-      {!mapboxToken ? (
-        <div className="h-[400px] flex items-center justify-center bg-muted rounded-xl">
-          <p className="text-muted-foreground">Loading map...</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
+    <div className="space-y-3">
       <Button
         type="button"
         variant="outline"
@@ -228,12 +189,10 @@ const LocationPicker = ({ onLocationSelect, initialAddress }: LocationPickerProp
         )}
       </Button>
       <div ref={mapContainer} className="h-[400px] rounded-xl overflow-hidden border border-border" />
-          <p className="text-xs text-muted-foreground">
-            Search for a location above or drag the pin to adjust your delivery address
-          </p>
-        </div>
-      )}
-    </>
+      <p className="text-xs text-muted-foreground">
+        Search for a location above or drag the pin to adjust your delivery address
+      </p>
+    </div>
   );
 };
 
